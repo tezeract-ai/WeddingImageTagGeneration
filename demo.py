@@ -173,10 +173,10 @@ def get_tags(text, objects):
         stream=False,
     )
 
-    # print(chat_completion.choices[0].message.content)
+    print(chat_completion)
 
     json_data = json.loads(chat_completion.choices[0].message.content)
-    return json_data['tags']
+    return json_data['tags'], chat_completion.usage.total_tokens * 0.00000005
 
   except Exception as e:
     print(f"Exception | get_tags | {str(e)}")
@@ -193,9 +193,9 @@ def image_to_tags(image):
 
     objects = get_objects('saved_image.png')
 
-    tags = get_tags(generated_caption, ", ".join(objects))
+    tags, cost = get_tags(generated_caption, ", ".join(objects))
 
-    return ", ".join(tags) , generated_caption , ", ".join(objects)
+    return ", ".join(tags) , generated_caption , ", ".join(objects), cost
     # return "", "", ""
 
 # Define Gradio interface
@@ -205,7 +205,9 @@ app = gr.Interface(
  outputs=[
         gr.Label(num_top_classes=5, label="Predicted Tags"),
         gr.Textbox(label="Caption"),
-        gr.Textbox(label="Object Detection")
+        gr.Textbox(label="Object Detection"),
+             gr.Textbox(label="Cost")
+
     ],    title="Image Tagging App"
 )
 
